@@ -14,6 +14,19 @@ class StatusMenuController: NSObject {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
     override func awakeFromNib() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.calendarDayDidChange), name:NSNotification.Name.NSCalendarDayChanged, object:nil)
+
+        statusItem.title = "RomanBar"
+        statusItem.menu = statusMenu
+
+        updateDate()
+    }
+
+    @IBAction func quitAction(_ sender: NSMenuItem) {
+        NSApplication.shared.terminate(self)
+    }
+
+    func updateDate() {
         let date = Date()
 
         let parts = date.dateInRoman()
@@ -31,11 +44,12 @@ class StatusMenuController: NSObject {
         let text = dateComponents.joined(separator: separatorSymbol)
 
         statusItem.title = text
-        statusItem.menu = statusMenu
     }
 
-    @IBAction func quitAction(_ sender: NSMenuItem) {
-        NSApplication.shared.terminate(self)
+    @objc func calendarDayDidChange(notification: NSNotification) {
+        DispatchQueue.main.async { // Correct
+            self.updateDate()
+        }
     }
 
 }
